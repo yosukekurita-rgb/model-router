@@ -1,0 +1,26 @@
+# EXAMPLE ONLY. Replace these placeholders with current, verified environment data.
+# Do not commit credentials, sensitive paths, account limits, or machine-specific state.
+
+environment:
+  last_verified: null
+  data_policy_ref: null
+
+runtimes:
+  example-runtime:
+    provider: example-provider
+    status: example
+    authenticated: null
+    available_controls:
+      model_override: null
+      reasoning_override: null
+      bounded_agents: null
+      tool_restriction: null
+
+registries:
+  model_capabilities: ../references/registry/model-capabilities.example.yaml
+  tool_capabilities: ../references/registry/tool-capabilities.example.yaml
+
+defaults:
+  quality_target: medium
+  topology: single
+  observability_level: L0

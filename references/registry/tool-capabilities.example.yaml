@@ -1,0 +1,28 @@
+# EXAMPLE ONLY
+# Replace these placeholders with tools discovered in the current host.
+# Do not treat this file as proof of installation, permission, or availability.
+
+tools:
+  example-code-search:
+    id: example-code-search
+    provider: example-runtime
+    status: example
+    last_verified: null
+    official_sources: []
+    declared:
+      capabilities:
+        search: true
+        write: false
+    evaluated: null
+
+  example-test-runner:
+    id: example-test-runner
+    provider: example-runtime
+    status: example
+    last_verified: null
+    official_sources: []
+    declared:
+      capabilities:
+        deterministic_verification: true
+        write: false
+    evaluated: null

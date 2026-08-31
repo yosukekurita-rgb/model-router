@@ -1,0 +1,30 @@
+# EXAMPLE ONLY
+# Replace or generate this registry from your current environment.
+# Do not treat these entries as model recommendations or runtime truth.
+
+models:
+  example-deep-model:
+    id: example-deep-model
+    provider: example-provider
+    status: example
+    last_verified: null
+    official_sources: []
+    declared:
+      capabilities:
+        reasoning_depth: high
+        tool_use: true
+        coding: true
+    evaluated: null
+
+  example-economical-model:
+    id: example-economical-model
+    provider: example-provider
+    status: example
+    last_verified: null
+    official_sources: []
+    declared:
+      capabilities:
+        reasoning_depth: medium
+        tool_use: true
+        coding: true
+    evaluated: null

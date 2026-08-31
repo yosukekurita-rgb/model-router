@@ -1,0 +1,4 @@
+interface:
+  display_name: "Model Router"
+  short_description: "Route AI execution by capability and risk"
+  default_prompt: "Use $model-router to choose the simplest eligible execution arrangement that can meet this task's quality target."

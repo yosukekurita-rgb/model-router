@@ -1,0 +1,242 @@
+version: 1
+null_policy: "Use null only when a field is genuinely not applicable or cannot be observed."
+cases:
+  - id: deterministic-csv-processing
+    task: "Deduplicate 100,000 CSV rows and count records by category."
+    expected:
+      deterministic_first: true
+      reasoning_depth: low
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: deterministic
+      human_escalation: false
+    notes: "Core row processing must not be routed to an LLM."
+
+  - id: deterministic-json-transformation
+    task: "Convert a large JSON export to a documented schema with stable field mappings."
+    expected:
+      deterministic_first: true
+      reasoning_depth: low
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: schema-and-reproducible-script
+      human_escalation: false
+    notes: "Use a parser and schema validation; use semantic reasoning only for ambiguous mappings."
+
+  - id: simple-rename-and-test
+    task: "Rename one source file, update imports, and run the existing unit test."
+    expected:
+      deterministic_first: true
+      reasoning_depth: low
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: deterministic
+      human_escalation: false
+    notes: "Ordinary work with a known runtime should not trigger extra routing ceremony."
+
+  - id: ordinary-code-fix-known-runtime
+    task: "Fix a localized off-by-one bug using the current runtime and existing regression test."
+    expected:
+      deterministic_first: true
+      reasoning_depth: medium
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: regression-test
+      human_escalation: false
+    notes: "Do not add a model comparison or multi-agent topology."
+
+  - id: ambiguous-architecture-comparison
+    task: "Compare three migration architectures with incomplete requirements."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: high
+      breadth: low
+      topology: single-first
+      independent_review: conditional
+      verification: mixed
+      human_escalation: likely
+    notes: "Treat shared tradeoff reasoning as depth, not three parallel answers."
+
+  - id: high-switching-cost-design
+    task: "Choose a storage architecture whose reversal would require a year-long migration."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: high
+      breadth: low
+      topology: single-first
+      independent_review: conditional
+      verification: prototypes-and-semantic-rubric
+      human_escalation: required
+    notes: "Surface switching cost, counterevidence, and the accountable decision."
+
+  - id: multi-repository-independent-review
+    task: "Review five independent repositories against the same security checklist."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: medium
+      breadth: high
+      topology: bounded-parallel
+      independent_review: false
+      verification: checklist-and-evidence
+      human_escalation: conditional
+    notes: "Parallel scopes are justified; writers must be read-only or isolated."
+
+  - id: independent-research-questions
+    task: "Investigate four unrelated market assumptions using separate primary-source searches."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: medium
+      breadth: high
+      topology: bounded-parallel
+      independent_review: conditional
+      verification: source-triangulation
+      human_escalation: false
+    notes: "Coordinator must synthesize and preserve uncertainty."
+
+  - id: deeply-coupled-debugging
+    task: "Diagnose one intermittent distributed transaction failure with an unknown root cause."
+    expected:
+      deterministic_first: true
+      reasoning_depth: high
+      breadth: low
+      topology: single-first
+      independent_review: conditional
+      verification: reproduction-logs-and-tests
+      human_escalation: conditional
+    notes: "Do not parallelize the single bottleneck before independent hypotheses exist."
+
+  - id: parallelism-would-duplicate-work
+    task: "Ask several agents to solve the same small but difficult proof without distinct evidence paths."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: high
+      breadth: low
+      topology: single
+      independent_review: conditional
+      verification: semantic-or-formal
+      human_escalation: false
+    notes: "Reject parallelism that only duplicates the same reasoning chain."
+
+  - id: large-context-synthesis
+    task: "Synthesize a large document collection into a traceable requirements map."
+    expected:
+      deterministic_first: true
+      reasoning_depth: high
+      breadth: medium
+      topology: single-first
+      independent_review: conditional
+      verification: citation-and-coverage-checks
+      human_escalation: conditional
+    notes: "Use retrieval and deterministic indexing before increasing context or fan-out."
+
+  - id: context-checkpoint-decision
+    task: "A long investigation is approaching context pressure and may pause for an external dependency."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: medium
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: checkpoint-integrity
+      human_escalation: conditional
+    notes: "Checkpoint only what is needed to resume; do not promote the full transcript to memory."
+
+  - id: low-risk-reversible-change
+    task: "Change a local formatting rule with a clean rollback and snapshot test."
+    expected:
+      deterministic_first: true
+      reasoning_depth: low
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: deterministic
+      human_escalation: false
+    notes: "Use light oversight and stop after the tests pass."
+
+  - id: high-risk-partly-irreversible-change
+    task: "Plan a production permission change with high impact and partial reversibility."
+    expected:
+      deterministic_first: true
+      reasoning_depth: high
+      breadth: low
+      topology: single-first
+      independent_review: conditional
+      verification: precheck-rollback-and-observed-state
+      human_escalation: required
+    notes: "Approval requested must never be reported as granted."
+
+  - id: unavailable-preferred-runtime
+    task: "The preferred runtime is unavailable but an equivalent eligible runtime may exist."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: medium
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: capability-and-availability-check
+      human_escalation: conditional
+    notes: "Discover an equivalent route; do not bind fallback to a hard-coded model."
+
+  - id: runtime-failure-quality-fixed
+    task: "The chosen runtime failed and no equivalent route is currently verified."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: medium
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: failure-classification
+      human_escalation: required
+    notes: "Do not silently lower the quality target; report degradation or stop."
+
+  - id: sensitive-data-eligibility
+    task: "Analyze sensitive records using tools available across two providers."
+    expected:
+      deterministic_first: true
+      reasoning_depth: medium
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: policy-and-data-boundary-check
+      human_escalation: conditional
+    notes: "Availability is not data eligibility or permission."
+
+  - id: deterministic-verifier-available
+    task: "Implement a parser for a format with a conformance suite."
+    expected:
+      deterministic_first: true
+      reasoning_depth: medium
+      breadth: low
+      topology: single
+      independent_review: false
+      verification: conformance-suite
+      human_escalation: false
+    notes: "An LLM reviewer must not replace the suite."
+
+  - id: semantic-verification-only
+    task: "Assess whether a strategy memo fairly represents competing tradeoffs when no oracle exists."
+    expected:
+      deterministic_first: partial
+      reasoning_depth: high
+      breadth: low
+      topology: single-first
+      independent_review: conditional
+      verification: semantic-rubric
+      human_escalation: conditional
+    notes: "Use a rubric and preserve counterevidence; label remaining uncertainty."
+
+  - id: residual-uncertainty-escalation
+    task: "After tests and review, a material compliance interpretation remains unresolved."
+    expected:
+      deterministic_first: true
+      reasoning_depth: high
+      breadth: low
+      topology: single-first
+      independent_review: true
+      verification: mixed-partial
+      human_escalation: required
+    notes: "Escalate the unresolved accountable judgment with a decision packet."
