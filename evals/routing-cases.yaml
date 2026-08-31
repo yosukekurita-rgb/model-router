@@ -1,242 +1,631 @@
-version: 1
+version: 2
 null_policy: "Use null only when a field is genuinely not applicable or cannot be observed."
 cases:
   - id: deterministic-csv-processing
     task: "Deduplicate 100,000 CSV rows and count records by category."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: low
+        coding: preferred
+        context_size: low
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints:
+        - The input data is authorized for the selected local tool or runtime.
       deterministic_first: true
-      reasoning_depth: low
-      breadth: low
+      limiting_shape: context
       topology: single
-      independent_review: false
+      compute_profile: light
+      runtime_resolution:
+        status: resolved
+        notes: Use a parser, query engine, or database for the core row processing.
       verification: deterministic
+      independent_review: false
+      observability_level: L1
       human_escalation: false
+      assumptions:
+        - A deterministic deduplication key can be defined.
+      residual_uncertainty: []
+      human_decision_required: null
+    guards: [deterministic-core]
     notes: "Core row processing must not be routed to an LLM."
 
   - id: deterministic-json-transformation
     task: "Convert a large JSON export to a documented schema with stable field mappings."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: low
+        coding: preferred
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints:
+        - The export is eligible for the parser and validation environment.
       deterministic_first: true
-      reasoning_depth: low
-      breadth: low
+      limiting_shape: context
       topology: single
+      compute_profile: normal
+      runtime_resolution:
+        status: resolved
+        notes: Use a parser and schema validator; reserve semantic reasoning for ambiguous mappings.
+      verification: deterministic
       independent_review: false
-      verification: schema-and-reproducible-script
+      observability_level: L1
       human_escalation: false
+      assumptions:
+        - Stable field mappings can be documented.
+      residual_uncertainty:
+        - Some source fields may require semantic interpretation.
+      human_decision_required: null
+    guards: [deterministic-core]
     notes: "Use a parser and schema validation; use semantic reasoning only for ambiguous mappings."
 
   - id: simple-rename-and-test
     task: "Rename one source file, update imports, and run the existing unit test."
     expected:
+      quality_target: medium
+      capability_vector:
+        reasoning_depth: low
+        coding: required
+        context_size: low
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints: []
       deterministic_first: true
-      reasoning_depth: low
-      breadth: low
+      limiting_shape: depth
       topology: single
-      independent_review: false
+      compute_profile: light
+      runtime_resolution:
+        status: resolved
+        notes: Use the current runtime and existing test command.
       verification: deterministic
+      independent_review: false
+      observability_level: L0
       human_escalation: false
+      assumptions:
+        - The existing unit test covers the rename.
+      residual_uncertainty: []
+      human_decision_required: null
+    guards: [available-tests]
     notes: "Ordinary work with a known runtime should not trigger extra routing ceremony."
 
   - id: ordinary-code-fix-known-runtime
     task: "Fix a localized off-by-one bug using the current runtime and existing regression test."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: medium
+        coding: required
+        context_size: low
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints: []
       deterministic_first: true
-      reasoning_depth: medium
-      breadth: low
+      limiting_shape: depth
       topology: single
+      compute_profile: normal
+      runtime_resolution:
+        status: resolved
+        notes: Use the current runtime and existing regression test.
+      verification: deterministic
       independent_review: false
-      verification: regression-test
+      observability_level: L1
       human_escalation: false
+      assumptions:
+        - The bug is localized and reproducible.
+      residual_uncertainty: []
+      human_decision_required: null
+    guards: [available-tests]
     notes: "Do not add a model comparison or multi-agent topology."
 
   - id: ambiguous-architecture-comparison
     task: "Compare three migration architectures with incomplete requirements."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: high
+        coding: preferred
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - Architecture evidence must be accessible and releasable to the selected runtime.
       deterministic_first: partial
-      reasoning_depth: high
-      breadth: low
+      limiting_shape: depth
       topology: single-first
-      independent_review: conditional
+      compute_profile: deep
+      runtime_resolution:
+        status: unresolved
+        notes: Discover current host controls after the logical route is accepted.
       verification: mixed
-      human_escalation: likely
+      independent_review: conditional
+      observability_level: L2
+      human_escalation: conditional
+      assumptions:
+        - The alternatives share constraints and require one coherent analysis.
+      residual_uncertainty:
+        - Requirements remain incomplete.
+      human_decision_required: Choose the migration architecture after requirements are clarified.
+    guards: [coupled-bottleneck]
     notes: "Treat shared tradeoff reasoning as depth, not three parallel answers."
 
   - id: high-switching-cost-design
     task: "Choose a storage architecture whose reversal would require a year-long migration."
     expected:
+      quality_target: critical
+      capability_vector:
+        reasoning_depth: high
+        coding: preferred
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - Decision evidence must be authorized for the selected runtime.
       deterministic_first: partial
-      reasoning_depth: high
-      breadth: low
+      limiting_shape: risk
       topology: single-first
+      compute_profile: deep
+      runtime_resolution:
+        status: unresolved
+        notes: Resolve only after prototypes, evidence, and decision authority are identified.
+      verification: mixed
       independent_review: conditional
-      verification: prototypes-and-semantic-rubric
+      observability_level: L2
       human_escalation: required
+      assumptions:
+        - Reversal would impose material cost and delay.
+      residual_uncertainty:
+        - Long-term workload and migration assumptions may change.
+      human_decision_required: Choose the storage architecture and accept its switching cost.
     notes: "Surface switching cost, counterevidence, and the accountable decision."
 
   - id: multi-repository-independent-review
     task: "Review five independent repositories against the same security checklist."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: medium
+        coding: required
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - Repository access is authorized.
+        - Each repository is an independent read-only or isolated scope.
       deterministic_first: partial
-      reasoning_depth: medium
-      breadth: high
+      limiting_shape: breadth
       topology: bounded-parallel
+      compute_profile: normal
+      runtime_resolution:
+        status: unresolved
+        notes: Use bounded parallel workers only if the current host exposes safe isolation.
+      verification: mixed
       independent_review: false
-      verification: checklist-and-evidence
+      observability_level: L2
       human_escalation: conditional
+      assumptions:
+        - The five repositories do not share a coupled analysis bottleneck.
+      residual_uncertainty:
+        - Cross-repository synthesis remains a coordinator responsibility.
+      human_decision_required: null
+    guards: [independent-breadth]
     notes: "Parallel scopes are justified; writers must be read-only or isolated."
 
   - id: independent-research-questions
     task: "Investigate four unrelated market assumptions using separate primary-source searches."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: medium
+        coding: none
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - Sources and search tools are permitted for each question.
       deterministic_first: partial
-      reasoning_depth: medium
-      breadth: high
+      limiting_shape: breadth
       topology: bounded-parallel
+      compute_profile: normal
+      runtime_resolution:
+        status: unresolved
+        notes: Map independent questions to bounded workers only if the host exposes them.
+      verification: mixed
       independent_review: conditional
-      verification: source-triangulation
+      observability_level: L2
       human_escalation: false
+      assumptions:
+        - The four assumptions can be researched independently.
+      residual_uncertainty:
+        - Source coverage and market timing may differ by question.
+      human_decision_required: null
+    guards: [independent-breadth]
     notes: "Coordinator must synthesize and preserve uncertainty."
 
   - id: deeply-coupled-debugging
     task: "Diagnose one intermittent distributed transaction failure with an unknown root cause."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: high
+        coding: required
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - Logs and production-like data must be eligible for the selected tools.
       deterministic_first: true
-      reasoning_depth: high
-      breadth: low
+      limiting_shape: depth
       topology: single-first
+      compute_profile: deep
+      runtime_resolution:
+        status: unresolved
+        notes: Start with one investigation path and current diagnostic tools.
+      verification: mixed
       independent_review: conditional
-      verification: reproduction-logs-and-tests
+      observability_level: L2
       human_escalation: conditional
+      assumptions:
+        - Reproduction and logs can narrow the failure.
+      residual_uncertainty:
+        - The root cause is not yet reproducible.
+      human_decision_required: null
+    guards: [coupled-bottleneck]
     notes: "Do not parallelize the single bottleneck before independent hypotheses exist."
 
   - id: parallelism-would-duplicate-work
     task: "Ask several agents to solve the same small but difficult proof without distinct evidence paths."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: high
+        coding: none
+        context_size: low
+        multimodal: none
+        tool_use: preferred
+        long_horizon: false
+      eligibility_constraints: []
       deterministic_first: partial
-      reasoning_depth: high
-      breadth: low
+      limiting_shape: depth
       topology: single
+      compute_profile: deep
+      runtime_resolution:
+        status: unresolved
+        notes: Use one capable reasoning path unless independent evidence paths are defined.
+      verification: semantic
       independent_review: conditional
-      verification: semantic-or-formal
+      observability_level: L1
       human_escalation: false
+      assumptions:
+        - No distinct evidence paths have been proposed.
+      residual_uncertainty:
+        - A formal verifier may not be available.
+      human_decision_required: null
+    guards: [coupled-bottleneck]
     notes: "Reject parallelism that only duplicates the same reasoning chain."
 
   - id: large-context-synthesis
     task: "Synthesize a large document collection into a traceable requirements map."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: high
+        coding: preferred
+        context_size: high
+        multimodal: preferred
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - All documents must be eligible for indexing and synthesis.
       deterministic_first: true
-      reasoning_depth: high
-      breadth: medium
+      limiting_shape: context
       topology: single-first
+      compute_profile: deep
+      runtime_resolution:
+        status: unresolved
+        notes: Prefer retrieval and deterministic indexing before increasing context or fan-out.
+      verification: mixed
       independent_review: conditional
-      verification: citation-and-coverage-checks
+      observability_level: L2
       human_escalation: conditional
+      assumptions:
+        - Stable document identifiers can support traceability.
+      residual_uncertainty:
+        - Semantic coverage may remain incomplete.
+      human_decision_required: null
     notes: "Use retrieval and deterministic indexing before increasing context or fan-out."
 
   - id: context-checkpoint-decision
     task: "A long investigation is approaching context pressure and may pause for an external dependency."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: medium
+        coding: preferred
+        context_size: high
+        multimodal: none
+        tool_use: preferred
+        long_horizon: true
+      eligibility_constraints:
+        - Persisted checkpoint data must be authorized.
       deterministic_first: partial
-      reasoning_depth: medium
-      breadth: low
+      limiting_shape: external_dependency
       topology: single
+      compute_profile: normal
+      runtime_resolution:
+        status: unresolved
+        notes: Use current checkpoint or tracing support if it is available and authorized.
+      verification: mixed
       independent_review: false
-      verification: checkpoint-integrity
+      observability_level: L2
       human_escalation: conditional
+      assumptions:
+        - The investigation may need to resume after a pause.
+      residual_uncertainty:
+        - The external dependency completion time is unknown.
+      human_decision_required: null
     notes: "Checkpoint only what is needed to resume; do not promote the full transcript to memory."
 
   - id: low-risk-reversible-change
     task: "Change a local formatting rule with a clean rollback and snapshot test."
     expected:
+      quality_target: medium
+      capability_vector:
+        reasoning_depth: low
+        coding: preferred
+        context_size: low
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints: []
       deterministic_first: true
-      reasoning_depth: low
-      breadth: low
+      limiting_shape: depth
       topology: single
-      independent_review: false
+      compute_profile: light
+      runtime_resolution:
+        status: resolved
+        notes: Use the current runtime, snapshot test, and version-control rollback.
       verification: deterministic
+      independent_review: false
+      observability_level: L1
       human_escalation: false
+      assumptions:
+        - The change is local and cleanly reversible.
+      residual_uncertainty: []
+      human_decision_required: null
+    guards: [available-tests]
     notes: "Use light oversight and stop after the tests pass."
 
   - id: high-risk-partly-irreversible-change
     task: "Plan a production permission change with high impact and partial reversibility."
     expected:
+      quality_target: critical
+      capability_vector:
+        reasoning_depth: high
+        coding: preferred
+        context_size: medium
+        multimodal: none
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - Explicit authority is required before execution.
+        - The exact target must satisfy action policy.
       deterministic_first: true
-      reasoning_depth: high
-      breadth: low
+      limiting_shape: risk
       topology: single-first
+      compute_profile: deep
+      runtime_resolution:
+        status: unresolved
+        notes: Do not execute until approval, rollback, sandbox, and target checks are observed.
+      verification: mixed
       independent_review: conditional
-      verification: precheck-rollback-and-observed-state
+      observability_level: L3
       human_escalation: required
+      assumptions:
+        - A rollback or containment path can be prepared.
+      residual_uncertainty:
+        - Production impact remains high even with prechecks.
+      human_decision_required: Approve or reject the exact production permission change.
+    guards: [approval-boundary]
     notes: "Approval requested must never be reported as granted."
 
   - id: unavailable-preferred-runtime
     task: "The preferred runtime is unavailable but an equivalent eligible runtime may exist."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: medium
+        coding: preferred
+        context_size: medium
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints:
+        - An alternative must be authenticated, policy-eligible, and capability-equivalent.
       deterministic_first: partial
-      reasoning_depth: medium
-      breadth: low
+      limiting_shape: external_dependency
       topology: single
+      compute_profile: normal
+      runtime_resolution:
+        status: degraded
+        notes: The preferred runtime is unavailable; no equivalent route is selected until verified.
+      verification: mixed
       independent_review: false
-      verification: capability-and-availability-check
+      observability_level: L1
       human_escalation: conditional
+      assumptions:
+        - An equivalent runtime may exist.
+      residual_uncertainty:
+        - Alternative availability, eligibility, and capability are unverified.
+      human_decision_required: Accept a verified equivalent route or wait for the preferred runtime.
+    guards: [availability-not-permission, fixed-quality-target]
     notes: "Discover an equivalent route; do not bind fallback to a hard-coded model."
 
   - id: runtime-failure-quality-fixed
     task: "The chosen runtime failed and no equivalent route is currently verified."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: medium
+        coding: preferred
+        context_size: medium
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints:
+        - Any fallback must meet the unchanged quality and policy constraints.
       deterministic_first: partial
-      reasoning_depth: medium
-      breadth: low
+      limiting_shape: external_dependency
       topology: single
+      compute_profile: normal
+      runtime_resolution:
+        status: blocked
+        notes: No capability-equivalent eligible route is currently verified.
+      verification: unavailable
       independent_review: false
-      verification: failure-classification
+      observability_level: L1
       human_escalation: required
+      assumptions:
+        - The original quality target remains required.
+      residual_uncertainty:
+        - Recovery time and fallback eligibility are unknown.
+      human_decision_required: Wait, stop, or change the requirement explicitly; do not lower quality silently.
+    guards: [fixed-quality-target]
     notes: "Do not silently lower the quality target; report degradation or stop."
 
   - id: sensitive-data-eligibility
     task: "Analyze sensitive records using tools available across two providers."
     expected:
+      quality_target: critical
+      capability_vector:
+        reasoning_depth: medium
+        coding: none
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints:
+        - Sensitive records must be allowed for the selected provider and tool.
+        - Technical availability does not grant data or action permission.
       deterministic_first: true
-      reasoning_depth: medium
-      breadth: low
+      limiting_shape: risk
       topology: single
+      compute_profile: normal
+      runtime_resolution:
+        status: unresolved
+        notes: Exclude providers until data eligibility, authentication, and policy are observed.
+      verification: mixed
       independent_review: false
-      verification: policy-and-data-boundary-check
+      observability_level: L2
       human_escalation: conditional
+      assumptions:
+        - At least one compliant processing route may exist.
+      residual_uncertainty:
+        - Current provider policy and authorization are unverified.
+      human_decision_required: Confirm the eligible data boundary if policy cannot be resolved automatically.
+    guards: [availability-not-permission]
     notes: "Availability is not data eligibility or permission."
 
   - id: deterministic-verifier-available
     task: "Implement a parser for a format with a conformance suite."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: medium
+        coding: required
+        context_size: medium
+        multimodal: none
+        tool_use: required
+        long_horizon: false
+      eligibility_constraints: []
       deterministic_first: true
-      reasoning_depth: medium
-      breadth: low
+      limiting_shape: depth
       topology: single
+      compute_profile: normal
+      runtime_resolution:
+        status: resolved
+        notes: Use the current coding runtime and the conformance suite.
+      verification: deterministic
       independent_review: false
-      verification: conformance-suite
+      observability_level: L1
       human_escalation: false
+      assumptions:
+        - The conformance suite is runnable and relevant.
+      residual_uncertainty: []
+      human_decision_required: null
+    guards: [available-tests]
     notes: "An LLM reviewer must not replace the suite."
 
   - id: semantic-verification-only
     task: "Assess whether a strategy memo fairly represents competing tradeoffs when no oracle exists."
     expected:
+      quality_target: high
+      capability_vector:
+        reasoning_depth: high
+        coding: none
+        context_size: high
+        multimodal: none
+        tool_use: preferred
+        long_horizon: false
+      eligibility_constraints:
+        - Source material must be accessible to the selected runtime.
       deterministic_first: partial
-      reasoning_depth: high
-      breadth: low
+      limiting_shape: depth
       topology: single-first
+      compute_profile: deep
+      runtime_resolution:
+        status: unresolved
+        notes: Resolve to a capable semantic-review route after source discovery.
+      verification: semantic
       independent_review: conditional
-      verification: semantic-rubric
+      observability_level: L2
       human_escalation: conditional
+      assumptions:
+        - A review rubric can define fair representation.
+      residual_uncertainty:
+        - No deterministic oracle establishes fairness.
+      human_decision_required: null
     notes: "Use a rubric and preserve counterevidence; label remaining uncertainty."
 
   - id: residual-uncertainty-escalation
     task: "After tests and review, a material compliance interpretation remains unresolved."
     expected:
+      quality_target: critical
+      capability_vector:
+        reasoning_depth: high
+        coding: none
+        context_size: high
+        multimodal: none
+        tool_use: required
+        long_horizon: true
+      eligibility_constraints:
+        - Compliance evidence must stay within the authorized data boundary.
+        - The accountable decision cannot be delegated to the runtime.
       deterministic_first: true
-      reasoning_depth: high
-      breadth: low
+      limiting_shape: risk
       topology: single-first
+      compute_profile: deep
+      runtime_resolution:
+        status: blocked
+        notes: Tests and review completed, but the material interpretation remains unresolved.
+      verification: mixed
       independent_review: true
-      verification: mixed-partial
+      observability_level: L3
       human_escalation: required
+      assumptions:
+        - Available deterministic and semantic checks have been exhausted.
+      residual_uncertainty:
+        - The compliance interpretation remains material and unresolved.
+      human_decision_required: Resolve the compliance interpretation and accept accountability for it.
     notes: "Escalate the unresolved accountable judgment with a decision packet."

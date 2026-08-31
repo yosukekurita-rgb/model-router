@@ -8,14 +8,29 @@
 
 ```yaml
 quality_target: high
-llm_required_for_core_processing: false
-deterministic_first: true
 capability_vector:
-  data_processing: required
   reasoning_depth: low
+  coding: preferred
+  context_size: low
+  multimodal: none
+  tool_use: required
+  long_horizon: false
+eligibility_constraints:
+  - The input data is authorized for the selected local tool or runtime.
+deterministic_first: true
+limiting_shape: context
 topology: single
-runtime_resolution: script-or-query-tool
+compute_profile: light
+runtime_resolution:
+  status: resolved
+  notes: Use a parser, query engine, or database for the core row processing.
 verification: deterministic
+independent_review: false
+observability_level: L1
+human_escalation: false
+assumptions:
+  - A deterministic deduplication key can be defined.
+residual_uncertainty: []
 human_decision_required: null
 ```
 

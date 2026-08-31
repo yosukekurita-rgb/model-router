@@ -3,28 +3,25 @@
 # Do not treat these entries as model recommendations or runtime truth.
 
 models:
-  example-deep-model:
-    id: example-deep-model
+  example-codex-deep:
+    id: example-codex-deep
     provider: example-provider
-    status: example
+    status: unverified
     last_verified: null
-    official_sources: []
+    official_sources:
+      - REPLACE_WITH_CURRENT_OFFICIAL_SOURCE
     declared:
+      status: placeholder
       capabilities:
         reasoning_depth: high
         tool_use: true
         coding: true
-    evaluated: null
-
-  example-economical-model:
-    id: example-economical-model
-    provider: example-provider
-    status: example
-    last_verified: null
-    official_sources: []
-    declared:
-      capabilities:
-        reasoning_depth: medium
-        tool_use: true
-        coding: true
-    evaluated: null
+    evaluated:
+      status: not_evaluated
+      evaluation_set: null
+      environment: null
+      results:
+        quality: null
+        latency: null
+        reliability: null
+      evidence_refs: []

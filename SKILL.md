@@ -1,6 +1,9 @@
 ---
 name: model-router
 description: "Route an AI task when its execution arrangement must be selected or changed: runtime/provider/model capability, reasoning or compute intensity, tools, single-agent versus bounded multi-agent topology, verification, fallback, or human escalation. Use for explicit routing, high-risk execution design, or a route that cannot meet quality or policy constraints; do not use for ordinary work with a clear runtime and execution method."
+license: MIT
+metadata:
+  version: "0.1.0"
 ---
 
 # Model Router
@@ -45,21 +48,35 @@ Ask for missing information only when it cannot be discovered and would material
 
 ## Route outcome
 
-Return enough information to reconstruct the decision. YAML is optional when prose is clearer.
+Return enough information to reconstruct the decision. The following block is the canonical route-outcome contract. Use every field when emitting YAML; prose may be used instead when it preserves the same information more clearly.
 
 ```yaml
-quality_target:
+quality_target: low|medium|high|critical
 capability_vector:
-eligibility_constraints:
-topology:
-compute_profile:
+  reasoning_depth: low|medium|high|frontier
+  coding: none|preferred|required
+  context_size: low|medium|high
+  multimodal: none|preferred|required
+  tool_use: none|preferred|required
+  long_horizon: false|true
+eligibility_constraints: []
+deterministic_first: true|partial|false
+limiting_shape: depth|breadth|context|risk|external_dependency
+topology: single|single-first|bounded-parallel
+compute_profile: light|normal|deep|exhaustive
 runtime_resolution:
-verification:
-observability_level:
+  status: unresolved|resolved|degraded|blocked
+  notes: string
+verification: deterministic|mixed|semantic|unavailable
+independent_review: false|conditional|true
+observability_level: L0|L1|L2|L3
+human_escalation: false|conditional|required
 assumptions: []
 residual_uncertainty: []
-human_decision_required: null
+human_decision_required: null|string
 ```
+
+`runtime_resolution.notes` records concrete resolution or verification detail without adding vendor-specific fields to the stable contract. `human_decision_required` is either a short decision statement or `null`; it is not a second escalation enum.
 
 If a human decision is required, use the minimum decision information in [human escalation](references/policies/human-escalation.md). Never report requested approval as granted approval.
 
