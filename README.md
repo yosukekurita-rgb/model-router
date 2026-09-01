@@ -69,7 +69,7 @@ Model Router is not Codex-only. Its policy, references, examples, and route sche
 
 - **Codex** discovers the skill from `.agents/skills/` and maps the logical route through the [Codex adapter](references/adapters/codex.md).
 - **Claude Code** follows the Agent Skills standard, discovers the skill from `.claude/skills/`, and maps the route through the [Claude Code adapter](references/adapters/claude-code.md).
-- **ChatGPT** can invoke an available skill explicitly with `@` or implicitly from its description.
+- **ChatGPT** can invoke an installed skill explicitly with `@` or implicitly from its description. Personal skill availability and upload permissions depend on the ChatGPT plan and workspace settings.
 - Other Agent Skills-compatible hosts may work when they support a multi-file skill directory and its relative references. Verify their discovery and invocation rules separately.
 
 The `agents/openai.yaml` file contains optional OpenAI UI metadata. It does not make the routing policy Codex-specific. Concrete controls still vary by host, so static package validation does not prove runtime discovery or invocation.
@@ -147,7 +147,9 @@ mkdir -p "$HOME/.agents/skills"
 git clone https://github.com/yosukekurita-rgb/model-router.git "$HOME/.agents/skills/model-router"
 ```
 
-See [OpenAI's skills documentation](https://learn.chatgpt.com/docs/build-skills) for current discovery behavior.
+OpenAI documents these as the current local-skill locations. We also opened `/skills` in Codex CLI 0.151.0 and confirmed both a project-local Model Router under `$CWD/.agents/skills` and a user skill under `$HOME/.agents/skills`. Because `$HOME/.codex/skills` is not listed as a current local-skill location, this guide does not use it.
+
+See [OpenAI's Codex skills documentation](https://developers.openai.com/codex/skills) for current discovery behavior.
 
 #### Claude Code
 
@@ -166,6 +168,18 @@ git clone https://github.com/yosukekurita-rgb/model-router.git "$HOME/.claude/sk
 ```
 
 Claude Code can select the skill automatically from its description or invoke it directly as `/model-router`. If `.claude/skills/` did not exist when the current session started, restart Claude Code after creating it. See [Anthropic's Claude Code skills documentation](https://code.claude.com/docs/en/skills) for current behavior.
+
+#### ChatGPT
+
+ChatGPT personal skills are currently available only to eligible Business, Enterprise, Healthcare, and Edu users, subject to workspace settings and product availability. If your workspace permits skill uploads:
+
+1. Download a ZIP archive of the complete repository. Do not upload only `SKILL.md`.
+2. In ChatGPT, open **Plugins** in the sidebar and select the **Skills** tab.
+3. Select **Create**, then **Upload from your computer**, and choose the archive.
+4. Wait for ChatGPT's scan to finish. Review any **Needs Review** result before using the skill; a **Blocked** result cannot be installed.
+5. Confirm that **Model Router** appears in the installed skills list.
+
+See [OpenAI's ChatGPT skills guide](https://help.openai.com/en/articles/20001066-skills-in-chatgpt) for current eligibility, upload, and workspace-control details. Installation and syncing can differ between ChatGPT and Codex, so verify each product separately.
 
 Other compatible hosts may use different discovery locations. Keep the complete repository together and follow that host's documentation.
 
@@ -201,6 +215,7 @@ A passing validator confirms the package structure and static contracts. Confirm
 
 - In Codex CLI or IDE, run `/skills` or type `$`, confirm that `model-router` appears, and invoke it as `$model-router`.
 - In Claude Code, run `/skills`, confirm that `model-router` appears, and invoke it as `/model-router`.
+- In ChatGPT, open **Plugins** > **Skills**, confirm that **Model Router** is installed, then type `@` in a chat and select it.
 
 Finally, try one realistic routing request. Installation, static validation, discovery, and actual invocation are separate verification states.
 
@@ -289,7 +304,7 @@ Model RouterはCodex専用ではありません。中核ポリシーと出力ス
 
 - **Codex**は`.agents/skills/`からスキルを検出し、[Codexアダプター](references/adapters/codex.md)で論理ルートを実際の操作へ対応づけます。
 - **Claude Code**はAgent Skills標準に対応しており、`.claude/skills/`からスキルを検出します。[Claude Codeアダプター](references/adapters/claude-code.md)でホスト固有の操作へ対応づけます。
-- **ChatGPT**では、利用可能なスキルを`@`で明示的に選ぶか、依頼内容に合う場合に暗黙で呼び出せます。
+- **ChatGPT**では、導入済みのスキルを`@`で明示的に選ぶか、依頼内容に合う場合に暗黙で呼び出せます。パーソナルスキルを利用できるプランとアップロード権限は、契約とワークスペース設定により異なります。
 - ほかのAgent Skills対応ホストでも、複数ファイルからなるスキルと相対参照を扱える場合は利用できる可能性があります。検出場所と呼び出し方法はホストごとに確認してください。
 
 `agents/openai.yaml`はOpenAI製品向けの任意のUI情報です。このファイルがあっても、ルーティングポリシーがCodex専用になるわけではありません。なお、静的検証に成功しても、各ホストでの検出や実呼び出しまで証明したことにはなりません。
@@ -323,7 +338,9 @@ mkdir -p "$HOME/.agents/skills"
 git clone https://github.com/yosukekurita-rgb/model-router.git "$HOME/.agents/skills/model-router"
 ```
 
-現在の検出仕様は[OpenAIのスキルドキュメント（英語）](https://learn.chatgpt.com/docs/build-skills)を確認してください。
+上記はOpenAIが現在案内している保存先です。Codex CLI 0.151.0で`/skills`を開き、`$CWD/.agents/skills`のModel Routerと、`$HOME/.agents/skills`のユーザー用スキルが表示されることも確認しました。`$HOME/.codex/skills`は現在のローカルスキル保存先に含まれていないため、このガイドでは案内しません。
+
+現在の検出仕様は[OpenAIのCodexスキルドキュメント（英語）](https://developers.openai.com/codex/skills)を確認してください。
 
 #### Claude Code
 
@@ -342,6 +359,18 @@ git clone https://github.com/yosukekurita-rgb/model-router.git "$HOME/.claude/sk
 ```
 
 Claude Codeはdescriptionに合う依頼から自動的に選択でき、`/model-router`で明示的に呼び出すこともできます。現在のセッション開始時に`.claude/skills/`が存在していなかった場合は、作成後にClaude Codeを再起動してください。現在の仕様は[AnthropicのClaude Code Skillsドキュメント（英語）](https://code.claude.com/docs/en/skills)を確認してください。
+
+#### ChatGPT
+
+ChatGPTのパーソナルスキルは現在、対象となるBusiness・Enterprise・Healthcare・Eduユーザー向けの機能です。実際に利用できるかは、ワークスペース設定と製品上の提供状況にも左右されます。スキルのアップロードが許可されている場合は、次の手順で導入します。
+
+1. リポジトリ全体をZIP形式でダウンロードします。`SKILL.md`だけをアップロードしないでください。
+2. ChatGPTのサイドバーで **Plugins** を開き、**Skills** タブを選びます。
+3. **Create**、**Upload from your computer** の順に選び、ZIPファイルをアップロードします。
+4. ChatGPTによるスキャンの完了を待ちます。**Needs Review** と表示された場合は内容を確認してください。**Blocked** の場合は導入できません。
+5. 導入済みスキルの一覧に **Model Router** が表示されることを確認します。
+
+対象プラン、アップロード、ワークスペース管理の現在の仕様は、[OpenAIのChatGPTスキルガイド（英語）](https://help.openai.com/en/articles/20001066-skills-in-chatgpt)を確認してください。ChatGPTとCodexでは導入状態や同期方法が異なる場合があるため、製品ごとに確認します。
 
 #### 導入時に編集するもの
 
@@ -375,6 +404,7 @@ python3 scripts/validate_repository.py
 
 - Codex CLIまたはIDEでは、`/skills`を実行するか`$`を入力し、`model-router`が表示されることを確認してから`$model-router`で呼び出します。
 - Claude Codeでは`/skills`で`model-router`が表示されることを確認してから、`/model-router`で呼び出します。
+- ChatGPTでは **Plugins**、**Skills** の順に開いて **Model Router** が導入済みであることを確認し、チャットで`@`から選択します。
 
 最後に、実際の依頼を1件試してください。導入済み、静的検証済み、ホストで検出済み、実際に呼び出された、という状態はそれぞれ別です。
 
